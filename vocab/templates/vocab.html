@@ -102,7 +102,7 @@
          <p class="message" id="message"> </p>
          <!-- JavaScript will insert text here MAKE IT RED-->
 
-         <h2>You found </h2>
+         <h2 id="youfound"></h2>
          <p id="response"> </p>
          <!-- JavaScript will insert text here -->
          <script>
@@ -138,6 +138,7 @@
                   function(data) {
                      if (data.hello[(data.hello).length-1]  != null) {
                         $('#response').append(data.hello[(data.hello).length-1] + "<br>");
+                        $('#youfound').html("You found");
                      }
                      if (data.message != "") {
                         $('#message').html(data.message + "<br>");

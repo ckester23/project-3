@@ -103,35 +103,47 @@ def check():
     # keep these since they don't do anything with form stuff
     jumble = flask.session["jumble"]
     matches = flask.session.get("matches", [])  # Default to empty list
+
+    # a flag to help determine whether to append the word typed to html
     new_match = False
+
+    # store messages and send using jsonify instead of flashing them
     msg = ""
 
     # Is it good?
     in_jumble = LetterBag(jumble).contains(text)
     matched = WORDS.has(text)
 
-    # Respond appropriately this is all correct
+    # Respond appropriately
     if matched and in_jumble and not (text in matches):
         # Cool, they found a new word
         matches.append(text)
         flask.session["matches"] = matches
         msg=""
         new_match = True
+
     elif text in matches:
-        flask.flash("You already found {}".format(text))
+        # ERROR: does this when first correct word is typed after incorrect words..
+        # first correct word off the bat; and second when you've typed incorrect 
+        # flask.flash("You already found {}".format(text))
         msg="You already found " + text
         new_match = False
+
     elif not matched:
-        flask.flash("{} isn't in the list of words".format(text))
+        # flask.flash("{} isn't in the list of words".format(text))
         msg=text + " isn't in the list of words"
         new_match = False
+
     elif not in_jumble:
-        flask.flash(
-            '"{}" can\'t be made from the letters {}'.format(text, jumble))
+        # flask.flash(
+        #     '"{}" can\'t be made from the letters {}'.format(text, jumble))
         msg= text + " can't be made from the letters " + jumble
         new_match = False
+
     else:
         app.logger.debug("This case shouldn't happen!")
+        new_match = False
+        msg=""
         assert False  # Raises AssertionError
     
     # Choose page:  Solved enough, or keep going? keep, not form stuff
