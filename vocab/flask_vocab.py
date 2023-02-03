@@ -27,7 +27,7 @@ app.secret_key = CONFIG.SECRET_KEY  # Should allow using session variables
 # One shared 'Vocab' object, read-only after initialization,
 # shared by all threads and instances.  Otherwise we would have to
 # store it in the browser and transmit it on each request/response cycle,
-# or else read it from the file on each request/responce cycle,
+# or else read it from the file on each request/response cycle,
 # neither of which would be suitable for responding keystroke by keystroke.
 
 WORDS = Vocab(CONFIG.VOCAB)
@@ -58,17 +58,6 @@ def index():
     app.logger.debug("At least one seems to be set correctly")
     return flask.render_template('vocab.html')
 
-
-@app.route("/keep_going")
-def keep_going():
-    """
-    After initial use of index, we keep the same scrambled
-    word and try to get more matches
-    """
-    flask.g.vocab = WORDS.as_list()
-    return flask.render_template('vocab.html')
-
-
 @app.route("/success")
 def success():
     return flask.render_template('success.html')
@@ -76,7 +65,7 @@ def success():
 
 #######################
 # Form handler.
-#   You'll need to change this to a
+#   You'll need to change this to
 #   a JSON request handler
 #######################
 
@@ -90,12 +79,13 @@ def check():
     the word is on the vocab list (therefore correctly spelled),
     made only from the jumble letters, and not a word they
     already found.
+
+    flask send the new word to JS
     """
 
     app.logger.debug("Entering check")
 
-    
-    # The data we need, from form and from cookie
+    # The data we need, from cookie
 
     # text = flask.request.form["attempt"]
     text = request.args.get("text", type=str)
@@ -124,7 +114,7 @@ def check():
 
     elif text in matches:
         # ERROR: does this when first correct word is typed after incorrect words..
-        # first correct word off the bat; and second when you've typed incorrect 
+        # first correct word off the bat after reload; and second when you've typed incorrect twice
         # flask.flash("You already found {}".format(text))
         msg="You already found " + text
         new_match = False
@@ -146,10 +136,14 @@ def check():
         msg=""
         assert False  # Raises AssertionError
     
-    # Choose page:  Solved enough, or keep going? keep, not form stuff
+    # Choose page:  DO NOT REDIRECT IN FLASK
+    # when game is over, JS is supposed to redirect to /success
+    # that line of code is not given anywhere, you'll need to google it
     if len(matches) >= flask.session["target_count"]:
-        print("going")
-        return flask.redirect(flask.url_for("success"))
+        if (new_match):
+            return flask.jsonify(hello=matches, message="Success")
+        else:
+            return flask.jsonify(hello=[], message=msg)
     else:
         if (new_match) :
             return flask.jsonify(hello=matches, message="")

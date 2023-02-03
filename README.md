@@ -1,5 +1,11 @@
 # UOCIS322 - Project 3 #
 
+Cheyanne Kester
+This is a project to get familiar with JQuery and asynchronous requests using AJAX.
+
+To do this, I programmed a vocab game in which the user is given a list of words, and a list of jumbled letters. The user must then type in words that they think can be made using only letters in the jumbled list, and which are also in the list of words given. The program tells the user whether or not their attempted word was successful (a part of the solution), and upon 3 successful attempts, a success page is loaded.
+
+
 You'll learn about JQuery and asynchronous requests in this project.
 
 ## Overview

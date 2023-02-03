@@ -112,7 +112,7 @@
               });
 
             // On each keystroke, ask the server whether the current
-            // word is long enough.
+            // word is a correct word.
             //
             // We use 'keyup' because the form value
             // is updated before that event is generated.
@@ -134,6 +134,7 @@
 
                if (! "ABCDEFGHIJKLMNOPQRSTUVWXYZ".includes(letter)) { return }
 
+               // when calling check is successful, do function
                $.getJSON( "/_check", { text: txt }, 
                   function(data) {
                      if (data.hello[(data.hello).length-1]  != null) {
@@ -141,7 +142,16 @@
                         $('#youfound').html("You found");
                      }
                      if (data.message != "") {
-                        $('#message').html(data.message + "<br>");
+                        if (data.message == "Success") {
+                           // get current address and make new one
+                           var current = window.location.href;
+                           var new_address = "/success";
+                           // do redirect
+                           window.location.replace(new_address);
+                        }
+                        else {
+                           $('#message').html(data.message + "<br>");
+                        }
                      }
 
                   }
