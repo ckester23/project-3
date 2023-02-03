@@ -6,6 +6,7 @@ from a scrambled string)
 
 import flask
 import logging
+from flask import request
 
 # Our modules
 from src.letterbag import LetterBag
@@ -79,7 +80,8 @@ def success():
 #   a JSON request handler
 #######################
 
-@app.route("/_check", methods=["POST"])
+# @app.route("/_check", methods=["POST"])
+@app.route("/_check")
 def check():
     """
     User has submitted the form with a word ('attempt')
@@ -89,38 +91,52 @@ def check():
     made only from the jumble letters, and not a word they
     already found.
     """
+
     app.logger.debug("Entering check")
 
+    
     # The data we need, from form and from cookie
-    text = flask.request.form["attempt"]
+
+    # text = flask.request.form["attempt"]
+    text = request.args.get("text", type=str)
+
+    # keep these since they don't do anything with form stuff
     jumble = flask.session["jumble"]
     matches = flask.session.get("matches", [])  # Default to empty list
+    new_match = False
 
     # Is it good?
     in_jumble = LetterBag(jumble).contains(text)
     matched = WORDS.has(text)
 
-    # Respond appropriately
+    # Respond appropriately this is all correct
     if matched and in_jumble and not (text in matches):
         # Cool, they found a new word
         matches.append(text)
         flask.session["matches"] = matches
+        new_match = True
     elif text in matches:
         flask.flash("You already found {}".format(text))
+        new_match = False
     elif not matched:
         flask.flash("{} isn't in the list of words".format(text))
+        new_match = False
     elif not in_jumble:
         flask.flash(
             '"{}" can\'t be made from the letters {}'.format(text, jumble))
+        new_match = False
     else:
         app.logger.debug("This case shouldn't happen!")
         assert False  # Raises AssertionError
 
-    # Choose page:  Solved enough, or keep going?
+    # Choose page:  Solved enough, or keep going? keep, not form stuff
     if len(matches) >= flask.session["target_count"]:
-       return flask.redirect(flask.url_for("success"))
+        print("going")
+
+        return flask.redirect(flask.url_for("success"))
     else:
-       return flask.redirect(flask.url_for("keep_going"))
+        return flask.jsonify(hello=matches)
+        # return flask.redirect(flask.url_for("keep_going"))
 
 
 ###############
