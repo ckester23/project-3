@@ -99,6 +99,9 @@
          {% endfor %}
          {% endif %}
          {% endwith %} -->
+         <p class="message" id="message"> </p>
+         <!-- JavaScript will insert text here MAKE IT RED-->
+
          <h2>You found </h2>
          <p id="response"> </p>
          <!-- JavaScript will insert text here -->
@@ -133,8 +136,13 @@
 
                $.getJSON( "/_check", { text: txt }, 
                   function(data) {
-                     if (data.hello != null)
-                     $('#response').append(data.hello[(data.hello).length-1] + "<br>");
+                     if (data.hello[(data.hello).length-1]  != null) {
+                        $('#response').append(data.hello[(data.hello).length-1] + "<br>");
+                     }
+                     if (data.message != "") {
+                        $('#message').html(data.message + "<br>");
+                     }
+
                   }
                   );
             });

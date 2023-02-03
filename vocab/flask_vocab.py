@@ -104,6 +104,7 @@ def check():
     jumble = flask.session["jumble"]
     matches = flask.session.get("matches", [])  # Default to empty list
     new_match = False
+    msg = ""
 
     # Is it good?
     in_jumble = LetterBag(jumble).contains(text)
@@ -114,29 +115,34 @@ def check():
         # Cool, they found a new word
         matches.append(text)
         flask.session["matches"] = matches
+        msg=""
         new_match = True
     elif text in matches:
         flask.flash("You already found {}".format(text))
+        msg="You already found " + text
         new_match = False
     elif not matched:
         flask.flash("{} isn't in the list of words".format(text))
+        msg=text + " isn't in the list of words"
         new_match = False
     elif not in_jumble:
         flask.flash(
             '"{}" can\'t be made from the letters {}'.format(text, jumble))
+        msg= text + " can't be made from the letters " + jumble
         new_match = False
     else:
         app.logger.debug("This case shouldn't happen!")
         assert False  # Raises AssertionError
-
+    
     # Choose page:  Solved enough, or keep going? keep, not form stuff
     if len(matches) >= flask.session["target_count"]:
         print("going")
-
         return flask.redirect(flask.url_for("success"))
     else:
-        return flask.jsonify(hello=matches)
-        # return flask.redirect(flask.url_for("keep_going"))
+        if (new_match) :
+            return flask.jsonify(hello=matches, message="")
+        else:
+            return flask.jsonify(hello=[], message=msg)
 
 
 ###############
